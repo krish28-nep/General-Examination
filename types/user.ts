@@ -14,7 +14,7 @@ export enum MaritalStatus {
 }
 
 export type User = {
-  id: number; 
+  id: number;
   firstName: string;
   middleName?: string;
   lastName: string;

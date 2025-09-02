@@ -2,21 +2,22 @@
 import { Button } from "@/components/general/Button";
 import { ReusableDropdown } from "@/components/general/ResuableDropDown";
 import { useToast } from "@/hooks/usetoast";
-import { addProgram } from "@/lib/api/program";
+import { fetchProgram, updateProgram } from "@/lib/api/program";
 import {
-  ProgramCreateInput,
-  programCreateSchema,
+  ProgramUpdateInput,
+  programUpdateSchema,
 } from "@/schema/program.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
-import React from "react";
+import { useParams, useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Book, GraduationCap, DollarSign } from "lucide-react";
 import { Degree } from "@/types/program";
 
-const AddProgramPage = () => {
+const EditProgramPage = () => {
+  const { id: programId } = useParams();
   const router = useRouter();
   const toast = useToast();
 
@@ -26,21 +27,32 @@ const AddProgramPage = () => {
     reset,
     handleSubmit,
     setValue,
-  } = useForm<ProgramCreateInput>({
-    resolver: zodResolver(programCreateSchema),
+  } = useForm<ProgramUpdateInput>({
+    resolver: zodResolver(programUpdateSchema),
   });
 
-  const addMutation = useMutation({
-    mutationFn: (data: ProgramCreateInput) => addProgram(data),
+  const { data: program, isLoading: programLoading } = useQuery({
+    queryKey: ["program", Number(programId)],
+    queryFn: () => fetchProgram(Number(programId)),
+  });
+
+  useEffect(() => {
+    if (program) {
+      reset(program);
+    }
+  }, [program, reset]);
+
+  const updateMutation = useMutation({
+    mutationFn: (data: ProgramUpdateInput) =>
+      updateProgram(Number(programId), data),
     onSuccess: () => {
-      toast("Program created successfully", "success");
-      reset();
-      // router.push("/programs");
+      toast("Program updated successfully", "success");
+      router.push("/programs");
     },
     onError: (err: unknown) => {
       if (err instanceof AxiosError) {
         toast(
-          err.response?.data?.message ?? "Failed to create program",
+          err.response?.data?.message ?? "Failed to update program",
           "error",
         );
       } else {
@@ -49,15 +61,17 @@ const AddProgramPage = () => {
     },
   });
 
-  const onSubmit = (data: ProgramCreateInput) => {
-    addMutation.mutate(data);
+  const onSubmit = (data: ProgramUpdateInput) => {
+    updateMutation.mutate(data);
   };
+
+  if (programLoading) return <div>Loading program...</div>;
 
   return (
     <div className="w-[1280px] mx-auto space-y-6">
       <div className="flex justify-between">
         <h1 className="flex gap-2 items-center heading-text">
-          <GraduationCap size={36} /> Add Program
+          <GraduationCap size={36} /> Update Program
         </h1>
         <Button variant="outline" text="Back" onClick={() => router.back()} />
       </div>
@@ -88,14 +102,13 @@ const AddProgramPage = () => {
               </label>
               <ReusableDropdown
                 items={Object.values(Degree)}
-                placeholder="Select Degree"
+                placeholder={program?.degree || "Select Degree"}
                 onSelect={(item) => setValue("degree", item)}
               />
               {errors.degree && (
                 <p className="error-text">{errors.degree.message}</p>
               )}
             </div>
-
             <div className="label-input-group group">
               <label
                 htmlFor="fee"
@@ -113,15 +126,14 @@ const AddProgramPage = () => {
             </div>
           </div>
         </div>
-
         <Button
           type="submit"
-          text="Save Program"
-          disabled={addMutation.isPending}
+          text="Update Program"
+          disabled={updateMutation.isPending}
         />
       </form>
     </div>
   );
 };
 
-export default AddProgramPage;
+export default EditProgramPage;
