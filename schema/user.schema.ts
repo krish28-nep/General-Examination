@@ -2,7 +2,7 @@ import { Gender, MaritalStatus, Role } from "@/types/user";
 import { z } from "zod";
 
 const genderValues = Object.values(Gender) as [string, ...string[]];
-const maritalValues = Object.values(MaritalStatus) as [string, ...string[]]
+const maritalValues = Object.values(MaritalStatus) as [string, ...string[]];
 
 export const studentProfileCreateSchema = z.object({
   signature: z.string().min(1, "Signature is required"),
@@ -10,16 +10,12 @@ export const studentProfileCreateSchema = z.object({
   motherName: z.string().min(1, "Mother's name is required"),
   gender: z.enum(genderValues, { message: "Gender is required" }),
   maritalStatus: z.enum(maritalValues, { message: "Marital is required" }),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  dateOfBirth: z.date().min(1, "Date of birth is required"),
   collegeName: z.string().min(1, "College name is required"),
   collegeAddress: z.string().min(1, "College address is required"),
-  programId: z
-    .number()
-    .int("Program ID must be an integer"),
+  programId: z.number().int("Program ID must be an integer"),
 
-  semesterId: z
-    .number()
-    .int("Semester ID must be an integer"),
+  semesterId: z.number().int("Semester ID must be an integer"),
 });
 
 export const userCreateSchema = z
@@ -58,7 +54,7 @@ export const userCreateSchema = z
     path: ["confirmPassword"],
     message: "Passwords do not match",
   });
-  
+
 export const userUpdateSchema = z.object({
   firstName: z.string().optional(),
   middleName: z.string().optional(),
@@ -78,4 +74,6 @@ export const userUpdateSchema = z.object({
 
 export type UserCreateInput = z.infer<typeof userCreateSchema>;
 export type UserUpdateInput = z.infer<typeof userUpdateSchema>;
-export type StudentProfileCreateInput = z.infer<typeof studentProfileCreateSchema>;
+export type StudentProfileCreateInput = z.infer<
+  typeof studentProfileCreateSchema
+>;

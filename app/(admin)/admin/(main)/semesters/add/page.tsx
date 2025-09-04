@@ -4,14 +4,20 @@ import { Button } from "@/components/general/Button";
 import { ReusableDropdown } from "@/components/general/ResuableDropDown";
 import { useToast } from "@/hooks/usetoast";
 import { addSemester } from "@/lib/api/semester";
-import { semesterCreateSchema, SemesterCreateInput } from "@/schema/semester.schema";
+import {
+    semesterCreateSchema,
+    SemesterCreateInput,
+} from "@/schema/semester.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm, useFieldArray } from "react-hook-form";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { CourseType, SemesterName } from "@/types/semester";
 import { Trash } from "lucide-react";
+import { fetchPrograms } from "@/lib/api/program";
+import { Spinner } from "@/components/Spinner";
+import { Program } from "@/types/program";
 
 const AddSemesterPage = () => {
     const router = useRouter();
@@ -25,9 +31,6 @@ const AddSemesterPage = () => {
         formState: { errors },
     } = useForm<SemesterCreateInput>({
         resolver: zodResolver(semesterCreateSchema),
-        defaultValues: {
-            courses: [{ name: "", code: "", credit: 0, type: CourseType.Compulsory }],
-        },
     });
 
     const { fields, append, remove } = useFieldArray({
@@ -35,23 +38,45 @@ const AddSemesterPage = () => {
         name: "courses",
     });
 
+    const {
+        data: programsData,
+        isLoading: programsDataLoading,
+        isError: programsDataError,
+    } = useQuery<Program[]>({
+        queryKey: ["programs"],
+        queryFn: fetchPrograms,
+    });
+
     const mutation = useMutation({
         mutationFn: addSemester,
         onSuccess: () => {
             toast("Semester created successfully", "success");
-            router.push("/semesters");
         },
         onError: (error: unknown) => {
-            const message =
-                error instanceof AxiosError
-                    ? error.response?.data?.message ?? "Failed to create semester"
-                    : "Unexpected error occurred";
-            toast(message, "error");
+            if (error instanceof AxiosError) {
+                // check server-provided error message
+                const serverMessage =
+                    error.response?.data?.message ??
+                    error.response?.data?.title ??
+                    "Failed to create semester";
+
+                toast(serverMessage, "error");
+            } else {
+                toast("Unexpected error occurred", "error");
+            }
         },
     });
 
+
     const onSubmit = (data: SemesterCreateInput) => mutation.mutate(data);
 
+    if (programsDataLoading) return <Spinner />;
+
+    if (programsDataError) return <p>Failed to load programs</p>;
+
+    if (!programsData || programsData.length === 0) {
+        return <p>No Program Found</p>;
+    }
     return (
         <div className="w-[1280px] mx-auto space-y-6">
             <div className="flex justify-between">
@@ -72,7 +97,9 @@ const AddSemesterPage = () => {
                                 placeholder="Select Semester"
                                 onSelect={(val) => setValue("name", val as SemesterName)}
                             />
-                            {errors.name && <p className="error-text">{errors.name.message}</p>}
+                            {errors.name && (
+                                <p className="error-text">{errors.name.message}</p>
+                            )}
                         </div>
 
                         {/* Fee */}
@@ -91,9 +118,14 @@ const AddSemesterPage = () => {
                         <div className="label-input-group group">
                             <label className="label-text">Program *</label>
                             <ReusableDropdown
-                                items={["BSc CSIT", "BBA", "BIM"]} // Replace with real program list
+                                items={programsData.map((program) => program.name)}
                                 placeholder="Select Program"
-                                onSelect={(val) => setValue("programId", Number(val))}
+                                onSelect={(selectedName) => {
+                                    const selected = programsData.find(
+                                        (p) => p.name === selectedName,
+                                    );
+                                    if (selected) setValue("programId", selected.id);
+                                }}
                             />
                             {errors.programId && (
                                 <p className="error-text">{errors.programId.message}</p>
@@ -199,6 +231,7 @@ const AddSemesterPage = () => {
                                     code: "",
                                     type: CourseType.Compulsory,
                                     credit: 0,
+                                    semesterId: 0
                                 })
                             }
                         />

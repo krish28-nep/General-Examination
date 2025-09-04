@@ -1,45 +1,48 @@
+@import url("https://fonts.googleapis.com/css?family=Redressed");
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Dark variant */
 @custom-variant dark (&:is(.dark *));
 
+/* Theme variables */
 @theme {
   /* Primary colors */
-  --color-primary-light: #dbeafe;
-  --color-primary: #2563eb;
-  --color-primary-hover: #1e40af;
-  --color-primary-dark: #1e3a8a;
+/* Primary colors */
+--color-primary-light: #d9d9e6;       /* light purple/blue background */
+--color-primary: #5c4fff;             /* main purple for active menu & buttons */
+--color-primary-hover: #4a3edc;       /* hover state for buttons/menu */
+--color-primary-dark: #372bb3;        /* darker shade for pressed/active states */
 
-  /* Secondary colors */
-  --color-secondary-light: #f3e8ff;
-  --color-secondary: #8b5cf6;
-  --color-secondary-hover: #7c3aed;
-  --color-secondary-dark: #5b21b6;
+/* Secondary colors */
+--color-secondary-light: #fff4cc;     /* light yellow background */
+--color-secondary: #d7a600;           /* main yellow/gold for highlights */
+--color-secondary-hover: #b98800;     /* hover state for secondary buttons/menus */
+--color-secondary-dark: #846100;      /* dark accent for secondary elements */
+
 
   /* Neutral colors */
   --color-neutral-lightest: #f9fafb;
   --color-neutral-light: #f3f4f6;
   --color-neutral: #9ca3af;
   --color-neutral-dark: #4b5563;
-  /* use this for normal texts */
   --color-neutral-darker: #1f2937;
-  /* use this for main headings */
 
-  /* Danger (error) */
+  /* Status colors */
   --color-danger: #ef4444;
   --color-danger-dark: #dc2626;
 
-  /* Warning */
   --color-warning: #f59e0b;
   --color-warning-dark: #d97706;
 
-  /* Success */
   --color-success: #10b981;
   --color-success-dark: #059669;
 
+  /* Typography */
   --text-3xl: 28px;
 }
 
+/* ---------------- Base styles ---------------- */
 @layer base {
   body {
     @apply bg-neutral-lightest text-neutral-dark text-sm;
@@ -50,6 +53,7 @@
   }
 }
 
+/* ---------------- Components ---------------- */
 @layer components {
   .heading-text {
     @apply text-neutral-darker text-3xl font-bold;
@@ -83,6 +87,10 @@
     @apply text-danger;
   }
 
+  .wrapper {
+    @apply w-[1280px] mx-auto
+  }
+
   .h-screen-minus-header {
     height: calc(100vh - 80px);
   }
@@ -96,7 +104,6 @@
       opacity: 0;
       transform: translateY(8px);
     }
-
     to {
       opacity: 1;
       transform: translateY(0);
@@ -105,5 +112,50 @@
 
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-out forwards;
+  }
+}
+
+/* ---------------- Sharingan Loader ---------------- */
+.eye {
+  top: calc(50% - 50px);
+  left: calc(50% - 50px);
+  background-color: #640606;
+  position: absolute;
+  border: 5px solid #000000;
+  border-radius: 50%;
+  height: 100px;
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sharingan {
+  position: relative;
+  animation: loader 2s infinite linear;
+}
+
+#pupil {
+  fill: black;
+}
+
+#iris {
+  stroke-width: 8px;
+  stroke: rgba(60, 6, 6, 0.75);
+  fill: rgba(60, 6, 6, 0.9);
+}
+
+.iris_anomaly {
+  fill: black;
+  font-size: 100px;
+  font-family: "Redressed", cursive;
+}
+
+@keyframes loader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
   }
 }

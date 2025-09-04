@@ -5,33 +5,30 @@ import { Spinner } from "@/components/Spinner";
 import { useToast } from "@/hooks/usetoast";
 import { fetchPrograms } from "@/lib/api/program";
 import { uploadImage } from "@/lib/api/upload";
-import { addUser } from "@/lib/api/user";
-import { UserCreateInput, userCreateSchema } from "@/schema/user.schema";
+import { fetchUser, updateUser } from "@/lib/api/user";
+import { UserUpdateInput, userUpdateSchema } from "@/schema/user.schema";
 import { Program } from "@/types/program";
-import { Gender, MaritalStatus } from "@/types/user";
+import { Gender, MaritalStatus, User } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import {
-  Eye,
-  EyeOff,
   GraduationCap,
   School,
   SquarePen,
   Upload,
-  User,
+  UserPen,
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-const AddStudentPage = () => {
+const UpdateStudentPage = () => {
   const router = useRouter();
+  const { id: userId } = useParams()
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
@@ -44,8 +41,15 @@ const AddStudentPage = () => {
     reset,
     handleSubmit,
     setValue,
-  } = useForm<UserCreateInput>({ resolver: zodResolver(userCreateSchema) });
+  } = useForm<UserUpdateInput>({ resolver: zodResolver(userUpdateSchema) });
 
+  const { data: userData,
+    isLoading: userDataLoading,
+    isError: userDataError
+  } = useQuery<User>({
+    queryKey: ["user", Number(userId)],
+    queryFn: () => fetchUser(Number(userId))
+  })
 
   const {
     data: programsData,
@@ -55,6 +59,22 @@ const AddStudentPage = () => {
     queryKey: ["programs"],
     queryFn: fetchPrograms,
   });
+
+  // Populate form when userData is loaded
+  useEffect(() => {
+    if (userData) {
+      reset(userData);
+      if (userData.photoUrl) setPreviewImage(userData.photoUrl);
+      if (userData.studentProfile?.signature)
+        setPreviewSignatureImage(userData.studentProfile.signature);
+      if (userData.studentProfile?.programId) {
+        const program = programsData?.find(
+          (p) => p.id === userData.studentProfile?.programId
+        );
+        if (program) setSelectedProgram(program);
+      }
+    }
+  }, [userData, reset, programsData]);
 
   useEffect(() => {
     if (imageFile) {
@@ -96,21 +116,19 @@ const AddStudentPage = () => {
     setSignatureFile(newFile);
   };
 
-  useEffect(() => {
-    console.log(errors)
-  }, [errors])
-
-  const addMutation = useMutation({
-    mutationFn: (data: UserCreateInput) => addUser(data),
+  const updateMutation = useMutation({
+    mutationFn: (data: UserUpdateInput) => updateUser(Number(userId), data),
     onSuccess: () => {
-      toast("Student created successfully", "success");
+      toast("Student Updated successfully", "success");
       reset();
+      setImageFile(null);
+      setSignatureFile(null);
       // router.push("/students"); // redirect to student list
     },
     onError: (err: unknown) => {
       if (err instanceof AxiosError) {
         toast(
-          err.response?.data?.message ?? "Failed to create student",
+          err.response?.data?.message ?? "Failed to update student",
           "error",
         );
       } else {
@@ -119,27 +137,32 @@ const AddStudentPage = () => {
     },
   });
 
-  const onSubmit = async (data: UserCreateInput) => {
-    let uploadedImagePath;
-    let uploadSignaturePath;
+  const onSubmit = async (data: UserUpdateInput) => {
+    let uploadedPhotoPath: string | undefined;
+    let uploadedSignaturePath: string | undefined;
+
     if (imageFile) {
-      uploadedImagePath = await uploadImage(imageFile);
-      setValue("photoUrl", uploadedImagePath || "", { shouldValidate: true });
+      uploadedPhotoPath = await uploadImage(imageFile);
+      setValue("photoUrl", uploadedPhotoPath, { shouldValidate: true });
     }
+
     if (SignatureFile) {
-      uploadSignaturePath = await uploadImage(SignatureFile);
-      setValue("studentProfile.signature", uploadSignaturePath || "", { shouldValidate: true });
+      uploadedSignaturePath = await uploadImage(SignatureFile);
+      setValue("studentProfile.signature", uploadedSignaturePath, { shouldValidate: true });
     }
-    const payload: UserCreateInput = {
+
+    const payload: UserUpdateInput = {
       ...data,
-      photoUrl: uploadedImagePath || data.photoUrl || "",
+      photoUrl: uploadedPhotoPath || data.photoUrl || "",
       studentProfile: {
         ...data.studentProfile!,
-        signature: uploadSignaturePath || data.studentProfile?.signature || "",
+        signature: uploadedSignaturePath || data.studentProfile?.signature || "",
       },
     };
-    addMutation.mutate(payload);
+
+    updateMutation.mutate(payload);
   };
+
 
   if (programsDataLoading) return <Spinner />;
 
@@ -162,7 +185,7 @@ const AddStudentPage = () => {
       </div>
       <div className="p-6 flex flex-col gap-4 border border-neutral-300 rounded-2xl shadow-md bg-neutral-100">
         <h2 className="flex gap-2 items-center large-text">
-          <User size={20} /> Personal Information
+          <UserPen size={20} /> Personal Information
         </h2>
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-3 gap-4">
@@ -236,55 +259,6 @@ const AddStudentPage = () => {
               />
               {errors.phoneNumber && (
                 <p className="error-text">{errors.phoneNumber.message}</p>
-              )}
-            </div>
-            <div className="label-input-group group relative">
-              <label className="label-text" htmlFor="password">
-                Password *
-              </label>
-              <div className="relative">
-                <input
-                  {...register("password")}
-                  type={showPassword ? "text" : "password"}
-                  className="input-field pr-10 w-full"
-                  placeholder="Enter the password"
-                />
-                <div
-                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </div>
-              </div>
-              {errors.password && (
-                <p className="error-text">{errors.password.message}</p>
-              )}
-            </div>
-
-            <div className="label-input-group group relative">
-              <label className="label-text" htmlFor="confirmPassword">
-                Confirm Password *
-              </label>
-              <div className="relative">
-                <input
-                  {...register("confirmPassword")}
-                  type={showConfirmPassword ? "text" : "password"}
-                  className="input-field pr-10 w-full"
-                  placeholder="Enter the confirm password"
-                />
-                <div
-                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
-                  )}
-                </div>
-              </div>
-              {errors.confirmPassword && (
-                <p className="error-text">{errors.confirmPassword.message}</p>
               )}
             </div>
           </div>
@@ -591,9 +565,9 @@ const AddStudentPage = () => {
           </div>
         </div>
       </div>
-      <Button type="submit" text="Save Student" />
+      <Button type="submit" text="Update Student" />
     </form>
   );
 };
 
-export default AddStudentPage;
+export default UpdateStudentPage;
