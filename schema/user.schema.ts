@@ -10,7 +10,7 @@ export const studentProfileCreateSchema = z.object({
   motherName: z.string().min(1, "Mother's name is required"),
   gender: z.enum(genderValues, { message: "Gender is required" }),
   maritalStatus: z.enum(maritalValues, { message: "Marital is required" }),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  dateOfBirth: z.date().min(1, "Date of birth is required"),
   collegeName: z.string().min(1, "College name is required"),
   collegeAddress: z.string().min(1, "College address is required"),
   programId: z.number().int("Program ID must be an integer"),

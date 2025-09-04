@@ -51,16 +51,22 @@ const AddSemesterPage = () => {
         mutationFn: addSemester,
         onSuccess: () => {
             toast("Semester created successfully", "success");
-            // router.push("/semesters");
         },
         onError: (error: unknown) => {
-            const message =
-                error instanceof AxiosError
-                    ? (error.response?.data?.message ?? "Failed to create semester")
-                    : "Unexpected error occurred";
-            toast(message, "error");
+            if (error instanceof AxiosError) {
+                // check server-provided error message
+                const serverMessage =
+                    error.response?.data?.message ??
+                    error.response?.data?.title ??
+                    "Failed to create semester";
+
+                toast(serverMessage, "error");
+            } else {
+                toast("Unexpected error occurred", "error");
+            }
         },
     });
+
 
     const onSubmit = (data: SemesterCreateInput) => mutation.mutate(data);
 
