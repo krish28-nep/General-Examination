@@ -14,8 +14,18 @@ export const updateUser = async (
   return data;
 };
 
+export const fetchUsers = async () => {
+  const { data } = await axios.get("/user");
+  return data;
+};
+
 export const fetchUser = async (id: number) => {
   const { data } = await axios.get(`/user/${id}`);
+  return data;
+};
+
+export const deleteUser = async (id: number) => {
+  const { data } = await axios.delete(`/user/${id}`);
   return data;
 };
 

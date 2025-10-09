@@ -21,6 +21,12 @@ export type Course = {
   type: CourseType;
   credit: number;
   semesterId: number;
+  semester: {
+    name: SemesterName;
+    program: {
+      name: string;
+    }
+  }
 };
 
 export type Semester = {

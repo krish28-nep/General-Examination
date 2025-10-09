@@ -27,3 +27,8 @@ export const fetchPrograms = async () => {
   console.log(data)
   return data;
 };
+
+export const deleteProgram = async (id: number) => {
+  const { data } = await axios.delete(`/academicProgram/${id}`);
+  return data;
+};

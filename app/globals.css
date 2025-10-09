@@ -123,8 +123,8 @@
   position: absolute;
   border: 5px solid #000000;
   border-radius: 50%;
-  height: 100px;
-  width: 100px;
+  height: 60px;
+  width: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
