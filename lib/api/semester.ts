@@ -26,3 +26,8 @@ export const fetchSemesters = async () => {
   const { data } = await axios.get("/semester");
   return data;
 };
+
+export const deleteSemester = async (id: number) => {
+  const { data } = await axios.delete(`/semester/${id}`);
+  return data;
+};

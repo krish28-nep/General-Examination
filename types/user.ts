@@ -1,3 +1,5 @@
+import { SemesterName } from "./semester";
+
 export enum Role {
   Admin = "Admin",
   Student = "Student",
@@ -36,5 +38,11 @@ export type StudentProfile = {
   collegeName: string;
   collegeAddress: string;
   programId: number;
+  program: {
+    name: string
+  }
   semesterId: number;
+  semester: {
+    name: SemesterName
+  }
 };
