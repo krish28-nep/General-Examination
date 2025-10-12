@@ -12,7 +12,6 @@ import React, { useState } from "react";
 
 const CoursePage = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const router = useRouter();
 
     const {
         data: coursesData,
@@ -40,12 +39,6 @@ const CoursePage = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input-field"
-                />
-
-                <Button
-                    onClick={() => router.push("/admin/courses/add")}
-                    icon={<Plus size={16} />}
-                    text="Add Course"
                 />
             </div>
 

@@ -8,7 +8,7 @@ import {
   programCreateSchema,
 } from "@/schema/program.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -19,6 +19,7 @@ import { Degree } from "@/types/program";
 const AddProgramPage = () => {
   const router = useRouter();
   const toast = useToast();
+  const queryClient = useQueryClient()
 
   const {
     register,
@@ -35,7 +36,8 @@ const AddProgramPage = () => {
     onSuccess: () => {
       toast("Program created successfully", "success");
       reset();
-      // router.push("/programs");
+      queryClient.invalidateQueries({ queryKey: ["programs"] })
+      router.push("/admin/programs");
     },
     onError: (err: unknown) => {
       if (err instanceof AxiosError) {

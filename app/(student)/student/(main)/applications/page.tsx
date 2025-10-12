@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { ClipboardList, Plus } from 'lucide-react';
-
 import { DataTable } from '@/components/DataTable';
 import { Button } from '@/components/general/Button';
 import { Spinner } from '@/components/Spinner';
 import { fetchApplications } from '@/lib/api/application';
 import { applicationColumns } from '@/lib/columns/applicationColumn';
+import { Application } from '@/types/application';
+import { useQuery } from '@tanstack/react-query';
+import { BookOpen, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
 const ApplicationPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -17,34 +17,19 @@ const ApplicationPage = () => {
 
     const {
         data: applicationsData,
-        isLoading,
-        isError,
-    } = useQuery({
+        isLoading: applicationsLoading,
+        isError: applicationsError,
+    } = useQuery<Application[]>({
         queryKey: ['applications'],
         queryFn: fetchApplications,
     });
 
-    // // Optional search filtering (client-side)
-    // const filteredApplications = applicationsData?.filter((app: any) => {
-    //     const fullName = `${app.user.firstName} ${app.user.middleName ?? ''} ${app.user.lastName}`.toLowerCase();
-    //     return (
-    //         fullName.includes(searchTerm.toLowerCase()) ||
-    //         app.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //         app.semester.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //         app.examType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //         app.status.toLowerCase().includes(searchTerm.toLowerCase())
-    //     );
-    // });
-
     return (
         <div className="space-y-8">
-            {/* Header */}
             <h1 className="flex items-center gap-4 heading-text">
-                <ClipboardList size={26} />
-                Application Management
+                <BookOpen size={26} /> Application
             </h1>
 
-            {/* Search + Action Row */}
             <div className="flex items-center justify-between">
                 <input
                     type="text"
@@ -53,12 +38,16 @@ const ApplicationPage = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="input-field"
                 />
+                <Button
+                    onClick={() => router.push('/student/exam')}
+                    icon={<Plus size={16} />}
+                    text="Add Application"
+                />
             </div>
 
-            {/* Data Table Section */}
-            {isLoading ? (
+            {applicationsLoading ? (
                 <Spinner />
-            ) : isError ? (
+            ) : applicationsError ? (
                 <p className="error-text">Failed to load applications</p>
             ) : (
                 <DataTable columns={applicationColumns} data={applicationsData ?? []} />
