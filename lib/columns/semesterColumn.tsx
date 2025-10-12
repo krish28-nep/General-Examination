@@ -28,8 +28,20 @@ export const semesterColumns: ColumnDef<Semester>[] = [
     },
   },
   {
-    accessorKey: "programId",
-    header: "Program ID",
+    accessorKey: "Degree",
+    header: "Degree",
+    cell: ({ row }) => {
+      const degree = row.original.program.degree ?? "—"
+      return degree
+    }
+  },
+  {
+    accessorKey: "program",
+    header: "Program",
+    cell: ({ row }) => {
+      const programName = row.original.program.name ?? "—"
+      return programName
+    }
   },
   {
     accessorKey: "courses",

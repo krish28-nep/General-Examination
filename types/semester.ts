@@ -1,3 +1,5 @@
+import { Degree } from "./program";
+
 export enum SemesterName {
   First = "First",
   Second = "Second",
@@ -25,6 +27,7 @@ export type Course = {
     name: SemesterName;
     program: {
       name: string;
+      degree: Degree
     }
   }
 };
@@ -34,5 +37,9 @@ export type Semester = {
   name: SemesterName;
   fee: number;
   programId: number;
+  program: {
+    name: string;
+    degree: Degree
+  }
   courses: Course[];
 };

@@ -77,7 +77,8 @@ export const studentColumns: ColumnDef<User>[] = [
         accessorKey: 'photoUrl',
         header: 'Photo',
         cell: ({ row }) => {
-            const photo = row.getValue('photoUrl') as string | undefined;
+            const photo = row.original.photoUrl
+            console.log(row.original)
             return photo ? (
                 <Image
                     src={photo}
@@ -126,19 +127,19 @@ export const studentColumns: ColumnDef<User>[] = [
         },
     },
     {
-        accessorKey: 'studentProfile.programId',
+        accessorKey: 'studentProfile.program',
         header: 'Program ID',
         cell: ({ row }) => {
             const profile = row.original.studentProfile;
-            return profile?.programId ?? '—';
+            return profile?.program.name ?? '—';
         },
     },
     {
-        accessorKey: 'studentProfile.semesterId',
-        header: 'Semester ID',
+        accessorKey: 'studentProfile.semester',
+        header: 'Semester',
         cell: ({ row }) => {
             const profile = row.original.studentProfile;
-            return profile?.semesterId ?? '—';
+            return profile?.semester.name ?? '—';
         },
     },
     {

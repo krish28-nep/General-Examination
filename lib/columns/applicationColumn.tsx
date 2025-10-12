@@ -77,7 +77,7 @@ export const applicationColumns: ColumnDef<Application>[] = [
         header: 'Student Name',
         cell: ({ row }) => {
             const user = row.getValue('user') as Application['user'];
-            return `${user.firstName} ${user.middleName ?? ''} ${user.lastName}`.trim();
+            return `${user?.firstName} ${user?.middleName ?? ''} ${user?.lastName}`.trim();
         },
     },
     {
@@ -85,7 +85,7 @@ export const applicationColumns: ColumnDef<Application>[] = [
         header: 'Email',
         cell: ({ row }) => {
             const user = row.getValue('user') as Application['user'];
-            return user.email;
+            return user?.email;
         },
     },
     {

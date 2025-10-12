@@ -100,10 +100,18 @@ export const courseColumns: ColumnDef<Course>[] = [
         },
     },
     {
-        id: 'program',
-        header: 'Program', 
+        id: 'Degree',
+        header: 'Degree',
         cell: ({ row }) => {
-            const programName = row.getValue('program') as string | undefined;
+            const degree = row.original.semester.program.degree
+            return degree ?? '—';
+        },
+    },
+    {
+        id: 'program',
+        header: 'Program',
+        cell: ({ row }) => {
+            const programName = row.original.semester.program.name
             return programName ?? '—';
         },
     },

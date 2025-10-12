@@ -10,7 +10,7 @@ import { UserCreateInput, userCreateSchema } from "@/schema/user.schema";
 import { Program } from "@/types/program";
 import { Gender, MaritalStatus } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import {
   Eye,
@@ -45,6 +45,7 @@ const AddStudentPage = () => {
     handleSubmit,
     setValue,
   } = useForm<UserCreateInput>({ resolver: zodResolver(userCreateSchema) });
+  const queryClient = useQueryClient()
 
 
   const {
@@ -105,7 +106,8 @@ const AddStudentPage = () => {
     onSuccess: () => {
       toast("Student created successfully", "success");
       reset();
-      // router.push("/students"); // redirect to student list
+      queryClient.invalidateQueries({ queryKey: ["users"] })
+      router.push("/admin/students"); // redirect to student list
     },
     onError: (err: unknown) => {
       if (err instanceof AxiosError) {
@@ -432,10 +434,13 @@ const AddStudentPage = () => {
                 Date of Birth *
               </label>
               <input
-                {...register("studentProfile.dateOfBirth")}
                 type="date"
                 className="input-field"
+                {...register("studentProfile.dateOfBirth", {
+                  valueAsDate: true,
+                })}
               />
+
               {errors.studentProfile && errors.studentProfile.dateOfBirth && (
                 <p className="error-text">
                   {errors.studentProfile.dateOfBirth.message}

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenCheck, Calendar, CreditCard, FileText, GraduationCap, LayoutDashboard, Trophy, Users } from "lucide-react";
+import { BookOpenCheck, Calendar, CreditCard, LayoutDashboard, Trophy, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

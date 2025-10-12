@@ -9,7 +9,7 @@ import {
     SemesterCreateInput,
 } from "@/schema/semester.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm, useFieldArray } from "react-hook-form";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,7 @@ import { Program } from "@/types/program";
 const AddSemesterPage = () => {
     const router = useRouter();
     const toast = useToast();
+    const queryClient = useQueryClient()
 
     const {
         register,
@@ -50,7 +51,11 @@ const AddSemesterPage = () => {
     const mutation = useMutation({
         mutationFn: addSemester,
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["programs"] })
+            queryClient.invalidateQueries({ queryKey: ["semesters"] })
+            queryClient.invalidateQueries({ queryKey: ["courses"] })
             toast("Semester created successfully", "success");
+            router.push("/admin/semesters")
         },
         onError: (error: unknown) => {
             if (error instanceof AxiosError) {
