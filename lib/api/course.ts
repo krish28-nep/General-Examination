@@ -24,5 +24,5 @@ export const deleteCourse = async (courseId: number) => {
 
 export const fetchCourses = async () => {
   const { data } = await axios.get("/course");
-  return data
-}
+  return data;
+};

@@ -39,10 +39,10 @@ export type StudentProfile = {
   collegeAddress: string;
   programId: number;
   program: {
-    name: string
-  }
+    name: string;
+  };
   semesterId: number;
   semester: {
-    name: SemesterName
-  }
+    name: SemesterName;
+  };
 };

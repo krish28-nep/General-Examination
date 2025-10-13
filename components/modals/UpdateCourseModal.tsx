@@ -45,7 +45,7 @@ const UpdateCourseModal: React.FC<UpdateCourseModalProps> = ({
     mutationFn: updateCourse,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["semester", Number(course.semesterId)],
+        queryKey: ["semesters", Number(course.semesterId)],
       });
       toast("Successfully updated Course.", "success");
       onClose();

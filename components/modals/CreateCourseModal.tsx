@@ -3,15 +3,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/general/Button";
-import { Course, CourseType } from "@/types/semester";
-import {
-  CourseCreateInput,
-  courseSchema,
-  CourseUpdateInput,
-  courseUpdateSchema,
-} from "@/schema/semester.schema";
+import { CourseType } from "@/types/semester";
+import { CourseCreateInput, courseSchema } from "@/schema/semester.schema";
 import { useToast } from "@/hooks/usetoast";
-import { addCourse, updateCourse } from "@/lib/api/course";
+import { addCourse } from "@/lib/api/course";
 import { Modal } from "./Modal";
 import { ReusableDropdown } from "../general/ResuableDropDown";
 import { Save } from "lucide-react";
@@ -41,7 +36,7 @@ const CreateCourseModal: React.FC<CreateCourseModalProps> = ({
     mutationFn: addCourse,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["semester", Number(semesterId)],
+        queryKey: ["semesters", Number(semesterId)],
       });
       toast("Successfully created Course.", "success");
       onClose();
@@ -54,7 +49,6 @@ const CreateCourseModal: React.FC<CreateCourseModalProps> = ({
   }, [semesterId, setValue]);
 
   const onSubmit = async (data: CourseCreateInput) => {
-    console.log(errors);
     createCourseMutation.mutate({
       ...data,
       semesterId: Number(semesterId),

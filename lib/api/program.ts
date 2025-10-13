@@ -24,7 +24,6 @@ export const fetchProgram = async (id: number) => {
 
 export const fetchPrograms = async () => {
   const { data } = await axios.get("/academicProgram");
-  console.log(data)
   return data;
 };
 

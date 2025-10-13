@@ -34,19 +34,18 @@ const AddStudentPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [previewSignatureImage, setPreviewSignatureImage] = useState("");
   const [SignatureFile, setSignatureFile] = useState<File | null>(null);
   const toast = useToast();
   const {
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     handleSubmit,
     setValue,
   } = useForm<UserCreateInput>({ resolver: zodResolver(userCreateSchema) });
-  const queryClient = useQueryClient()
-
+  const queryClient = useQueryClient();
 
   const {
     data: programsData,
@@ -97,16 +96,12 @@ const AddStudentPage = () => {
     setSignatureFile(newFile);
   };
 
-  useEffect(() => {
-    console.log(errors)
-  }, [errors])
-
   const addMutation = useMutation({
     mutationFn: (data: UserCreateInput) => addUser(data),
     onSuccess: () => {
       toast("Student created successfully", "success");
       reset();
-      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       router.push("/admin/students"); // redirect to student list
     },
     onError: (err: unknown) => {
@@ -130,7 +125,9 @@ const AddStudentPage = () => {
     }
     if (SignatureFile) {
       uploadSignaturePath = await uploadImage(SignatureFile);
-      setValue("studentProfile.signature", uploadSignaturePath || "", { shouldValidate: true });
+      setValue("studentProfile.signature", uploadSignaturePath || "", {
+        shouldValidate: true,
+      });
     }
     const payload: UserCreateInput = {
       ...data,
@@ -494,7 +491,7 @@ const AddStudentPage = () => {
                   );
                   if (selected) {
                     setValue("studentProfile.programId", selected.id);
-                    setSelectedProgram(selected)
+                    setSelectedProgram(selected);
                   }
                 }}
               />
@@ -510,11 +507,11 @@ const AddStudentPage = () => {
               </label>
               <ReusableDropdown
                 disabled={!selectedProgram}
-                items={selectedProgram?.semesters?.map(s => s.name) || []}
+                items={selectedProgram?.semesters?.map((s) => s.name) || []}
                 placeholder="Select Semester"
                 onSelect={(item) => {
                   const selectedSemester = selectedProgram?.semesters?.find(
-                    s => s.name === item
+                    (s) => s.name === item,
                   );
                   if (selectedSemester) {
                     setValue("studentProfile.semesterId", selectedSemester.id);
@@ -590,7 +587,9 @@ const AddStudentPage = () => {
               </>
             )}
             {errors.studentProfile?.signature && (
-              <span className="error-text">{errors.studentProfile.signature.message}</span>
+              <span className="error-text">
+                {errors.studentProfile.signature.message}
+              </span>
             )}
             <input type="hidden" {...register("studentProfile.signature")} />
           </div>

@@ -5,7 +5,7 @@ export type Program = {
   name: string;
   degree: Degree;
   fee: number;
-  semesters: Semester[]
+  semesters: Semester[];
 };
 
 export enum Degree {
