@@ -6,10 +6,7 @@ export const addUser = async (dataToSend: UserCreateInput) => {
   return data;
 };
 
-export const updateUser = async (
-  id: number,
-  dataToSend: UserUpdateInput,
-) => {
+export const updateUser = async (id: number, dataToSend: UserUpdateInput) => {
   const { data } = await axios.patch(`/user/${id}`, dataToSend);
   return data;
 };
@@ -28,4 +25,3 @@ export const deleteUser = async (id: number) => {
   const { data } = await axios.delete(`/user/${id}`);
   return data;
 };
-

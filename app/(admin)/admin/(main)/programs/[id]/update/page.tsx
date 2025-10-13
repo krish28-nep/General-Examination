@@ -32,7 +32,7 @@ const EditProgramPage = () => {
   });
 
   const { data: program, isLoading: programLoading } = useQuery({
-    queryKey: ["program", Number(programId)],
+    queryKey: ["programs", Number(programId)],
     queryFn: () => fetchProgram(Number(programId)),
   });
 

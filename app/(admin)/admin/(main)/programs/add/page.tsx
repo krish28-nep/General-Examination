@@ -19,7 +19,7 @@ import { Degree } from "@/types/program";
 const AddProgramPage = () => {
   const router = useRouter();
   const toast = useToast();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -36,7 +36,7 @@ const AddProgramPage = () => {
     onSuccess: () => {
       toast("Program created successfully", "success");
       reset();
-      queryClient.invalidateQueries({ queryKey: ["programs"] })
+      queryClient.invalidateQueries({ queryKey: ["programs"] });
       router.push("/admin/programs");
     },
     onError: (err: unknown) => {

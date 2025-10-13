@@ -27,29 +27,30 @@ import { useForm } from "react-hook-form";
 
 const UpdateStudentPage = () => {
   const router = useRouter();
-  const { id: userId } = useParams()
+  const { id: userId } = useParams();
 
   const [previewImage, setPreviewImage] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [previewSignatureImage, setPreviewSignatureImage] = useState("");
   const [SignatureFile, setSignatureFile] = useState<File | null>(null);
   const toast = useToast();
   const {
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     handleSubmit,
     setValue,
   } = useForm<UserUpdateInput>({ resolver: zodResolver(userUpdateSchema) });
 
-  const { data: userData,
+  const {
+    data: userData,
     isLoading: userDataLoading,
-    isError: userDataError
+    isError: userDataError,
   } = useQuery<User>({
-    queryKey: ["user", Number(userId)],
-    queryFn: () => fetchUser(Number(userId))
-  })
+    queryKey: ["users", Number(userId)],
+    queryFn: () => fetchUser(Number(userId)),
+  });
 
   const {
     data: programsData,
@@ -69,7 +70,7 @@ const UpdateStudentPage = () => {
         setPreviewSignatureImage(userData.studentProfile.signature);
       if (userData.studentProfile?.programId) {
         const program = programsData?.find(
-          (p) => p.id === userData.studentProfile?.programId
+          (p) => p.id === userData.studentProfile?.programId,
         );
         if (program) setSelectedProgram(program);
       }
@@ -123,7 +124,7 @@ const UpdateStudentPage = () => {
       reset();
       setImageFile(null);
       setSignatureFile(null);
-      // router.push("/students"); // redirect to student list
+      router.push("/admin/students"); // redirect to student list
     },
     onError: (err: unknown) => {
       if (err instanceof AxiosError) {
@@ -148,7 +149,9 @@ const UpdateStudentPage = () => {
 
     if (SignatureFile) {
       uploadedSignaturePath = await uploadImage(SignatureFile);
-      setValue("studentProfile.signature", uploadedSignaturePath, { shouldValidate: true });
+      setValue("studentProfile.signature", uploadedSignaturePath, {
+        shouldValidate: true,
+      });
     }
 
     const payload: UserUpdateInput = {
@@ -156,17 +159,17 @@ const UpdateStudentPage = () => {
       photoUrl: uploadedPhotoPath || data.photoUrl || "",
       studentProfile: {
         ...data.studentProfile!,
-        signature: uploadedSignaturePath || data.studentProfile?.signature || "",
+        signature:
+          uploadedSignaturePath || data.studentProfile?.signature || "",
       },
     };
 
     updateMutation.mutate(payload);
   };
 
+  if (programsDataLoading || userDataLoading) return <Spinner />;
 
-  if (programsDataLoading) return <Spinner />;
-
-  if (programsDataError) return <p>Failed to load programs</p>;
+  if (programsDataError || userDataError) return <p>Failed to load data</p>;
 
   if (!programsData || programsData.length === 0) {
     return <p>No Program Found</p>;
@@ -463,7 +466,7 @@ const UpdateStudentPage = () => {
                   );
                   if (selected) {
                     setValue("studentProfile.programId", selected.id);
-                    setSelectedProgram(selected)
+                    setSelectedProgram(selected);
                   }
                 }}
               />
@@ -479,11 +482,11 @@ const UpdateStudentPage = () => {
               </label>
               <ReusableDropdown
                 disabled={!selectedProgram}
-                items={selectedProgram?.semesters?.map(s => s.name) || []}
+                items={selectedProgram?.semesters?.map((s) => s.name) || []}
                 placeholder="Select Semester"
                 onSelect={(item) => {
                   const selectedSemester = selectedProgram?.semesters?.find(
-                    s => s.name === item
+                    (s) => s.name === item,
                   );
                   if (selectedSemester) {
                     setValue("studentProfile.semesterId", selectedSemester.id);
@@ -559,7 +562,9 @@ const UpdateStudentPage = () => {
               </>
             )}
             {errors.studentProfile?.signature && (
-              <span className="error-text">{errors.studentProfile.signature.message}</span>
+              <span className="error-text">
+                {errors.studentProfile.signature.message}
+              </span>
             )}
             <input type="hidden" {...register("studentProfile.signature")} />
           </div>

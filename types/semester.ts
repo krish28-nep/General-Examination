@@ -27,9 +27,9 @@ export type Course = {
     name: SemesterName;
     program: {
       name: string;
-      degree: Degree
-    }
-  }
+      degree: Degree;
+    };
+  };
 };
 
 export type Semester = {
@@ -39,7 +39,7 @@ export type Semester = {
   programId: number;
   program: {
     name: string;
-    degree: Degree
-  }
+    degree: Degree;
+  };
   courses: Course[];
 };

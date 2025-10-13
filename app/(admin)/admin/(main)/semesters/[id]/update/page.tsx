@@ -33,7 +33,7 @@ const UpdateSemesterPage = () => {
   const [createCourseModalOpen, setCreateCourseModalOpen] = useState(false);
 
   const { data: semester, isLoading: semesterLoading } = useQuery<Semester>({
-    queryKey: ["semester", Number(semesterId)],
+    queryKey: ["semesters", Number(semesterId)],
     queryFn: () => fetchSemester(Number(semesterId)),
   });
 
@@ -79,8 +79,12 @@ const UpdateSemesterPage = () => {
     onSuccess: () => {
       toast("Semester details updated", "success");
       queryClient.invalidateQueries({
-        queryKey: ["semester", Number(semesterId)],
+        queryKey: ["semesters", Number(semesterId)],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["semesters"],
+      });
+      router.push("/admin/semesters")
     },
     onError: () => toast("Failed to update semester", "error"),
   });
@@ -90,7 +94,10 @@ const UpdateSemesterPage = () => {
     onSuccess: () => {
       toast("Course deleted", "success");
       queryClient.invalidateQueries({
-        queryKey: ["semester", Number(semesterId)],
+        queryKey: ["semesters", Number(semesterId)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["courses"], exact: false
       });
     },
   });

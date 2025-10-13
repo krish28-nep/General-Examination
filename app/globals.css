@@ -8,18 +8,17 @@
 /* Theme variables */
 @theme {
   /* Primary colors */
-/* Primary colors */
---color-primary-light: #d9d9e6;       /* light purple/blue background */
---color-primary: #5c4fff;             /* main purple for active menu & buttons */
---color-primary-hover: #4a3edc;       /* hover state for buttons/menu */
---color-primary-dark: #372bb3;        /* darker shade for pressed/active states */
+  /* Primary colors */
+  --color-primary-light: #d9d9e6; /* light purple/blue background */
+  --color-primary: #5c4fff; /* main purple for active menu & buttons */
+  --color-primary-hover: #4a3edc; /* hover state for buttons/menu */
+  --color-primary-dark: #372bb3; /* darker shade for pressed/active states */
 
-/* Secondary colors */
---color-secondary-light: #fff4cc;     /* light yellow background */
---color-secondary: #d7a600;           /* main yellow/gold for highlights */
---color-secondary-hover: #b98800;     /* hover state for secondary buttons/menus */
---color-secondary-dark: #846100;      /* dark accent for secondary elements */
-
+  /* Secondary colors */
+  --color-secondary-light: #fff4cc; /* light yellow background */
+  --color-secondary: #d7a600; /* main yellow/gold for highlights */
+  --color-secondary-hover: #b98800; /* hover state for secondary buttons/menus */
+  --color-secondary-dark: #846100; /* dark accent for secondary elements */
 
   /* Neutral colors */
   --color-neutral-lightest: #f9fafb;
@@ -88,7 +87,7 @@
   }
 
   .wrapper {
-    @apply w-[1280px] mx-auto
+    @apply w-[1280px] mx-auto;
   }
 
   .h-screen-minus-header {
