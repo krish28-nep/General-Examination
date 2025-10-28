@@ -9,16 +9,24 @@
 @theme {
   /* Primary colors */
   /* Primary colors */
-  --color-primary-light: #d9d9e6; /* light purple/blue background */
-  --color-primary: #5c4fff; /* main purple for active menu & buttons */
-  --color-primary-hover: #4a3edc; /* hover state for buttons/menu */
-  --color-primary-dark: #372bb3; /* darker shade for pressed/active states */
+  --color-primary-light: #d9d9e6;
+  /* light purple/blue background */
+  --color-primary: #5c4fff;
+  /* main purple for active menu & buttons */
+  --color-primary-hover: #4a3edc;
+  /* hover state for buttons/menu */
+  --color-primary-dark: #372bb3;
+  /* darker shade for pressed/active states */
 
   /* Secondary colors */
-  --color-secondary-light: #fff4cc; /* light yellow background */
-  --color-secondary: #d7a600; /* main yellow/gold for highlights */
-  --color-secondary-hover: #b98800; /* hover state for secondary buttons/menus */
-  --color-secondary-dark: #846100; /* dark accent for secondary elements */
+  --color-secondary-light: #fff4cc;
+  /* light yellow background */
+  --color-secondary: #d7a600;
+  /* main yellow/gold for highlights */
+  --color-secondary-hover: #b98800;
+  /* hover state for secondary buttons/menus */
+  --color-secondary-dark: #846100;
+  /* dark accent for secondary elements */
 
   /* Neutral colors */
   --color-neutral-lightest: #f9fafb;
@@ -78,6 +86,10 @@
     @apply text-neutral-darker text-lg font-semibold;
   }
 
+  .content-wrapper {
+    @apply mx-auto w-full px-4 py-12 sm:px-8 sm:py-16 md:px-16 lg:px-20 xl:max-w-[1280px] xl:px-4 xl:py-24 2xl:max-w-[1580px];
+  }
+
   .sm-text {
     @apply text-neutral-dark text-sm;
   }
@@ -103,6 +115,7 @@
       opacity: 0;
       transform: translateY(8px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -154,6 +167,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(-360deg);
   }

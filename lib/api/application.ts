@@ -15,3 +15,8 @@ export const addApplication = async (dataToSend: ApplicationCreateInput) => {
   const { data } = await axios.post("/application", dataToSend);
   return data;
 };
+
+export const fetchApplicationsByUser = async (userId: number) => {
+  const { data } = await axios.get(`/application/user/${userId}`);
+  return data;
+};

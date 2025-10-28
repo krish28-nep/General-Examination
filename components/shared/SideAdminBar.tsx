@@ -10,8 +10,10 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import logo from '@/public/omexLogo.png'
 
 type SideBarItem = {
   name: string;
@@ -47,13 +49,14 @@ const SideAdminBar = () => {
 
   return (
     <div className="bg-neutral-light shadow-neutral sticky top-0 z-10 h-screen w-64 space-y-4 p-4 shadow-md">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/admin/dashboard"
-          className="text-primary h-16 text-2xl font-bold"
-        >
-          <h1 className="text-4xl">OMEX</h1>
-        </Link>
+      <div className="h-18 overflow-clip">
+        <Image
+          src={logo}
+          height={200}
+          width={400}
+          alt="THE OMEX LOGO"
+          className="h-full w-auto object-contain"
+        />
       </div>
       <ul className="space-y-2">
         {sideBarItems.map((item, index) => {
@@ -62,11 +65,10 @@ const SideAdminBar = () => {
             <li key={index}>
               <Link
                 href={item.route}
-                className={`flex items-center gap-2 rounded-md p-4 font-medium transition-colors duration-300 ${
-                  isActive
-                    ? "bg-primary-light border-primary border-1"
-                    : "hover:bg-secondary-light"
-                }`}
+                className={`flex items-center gap-2 rounded-md p-4 font-medium transition-colors duration-300 ${isActive
+                  ? "bg-primary-light border-primary border-1"
+                  : "hover:bg-secondary-light"
+                  }`}
               >
                 {item.icon}
                 <span>{item.name}</span>

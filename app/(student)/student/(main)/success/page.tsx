@@ -9,11 +9,13 @@ import {
   ApplicationCreateInput,
   applicationCreateSchema,
 } from "@/schema/application.schema";
+import { useRouter } from "next/navigation";
 
 const Success = () => {
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
   const queryClient = useQueryClient();
+  const router = useRouter()
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000);
@@ -50,7 +52,7 @@ const Success = () => {
       console.error("Invalid application data", err);
       toast("Invalid application data", "error");
     }
-  }, [addApplicationMutation, toast]);
+  }, [toast]);
 
 
   return (
@@ -74,7 +76,7 @@ const Success = () => {
           </p>
           <button
             onClick={() => {
-              window.location.href = "/student/applications";
+              router.push("/student/applications");
             }}
             className="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition"
           >

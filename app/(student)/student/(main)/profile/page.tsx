@@ -6,19 +6,22 @@ import { fetchUser } from "@/lib/api/user";
 import { User } from "@/types/user";
 import Image from "next/image";
 import photoofMan from "@/public/professional-product-manager.png";
+import { useAuth } from "@/hooks/useAuth";
+import { Spinner } from "@/components/Spinner";
 
 const ProfilePage = () => {
-  const userId = 1; // Replace with auth user ID
+  const { user } = useAuth()
   const {
     data: userData,
     isLoading,
     isError,
   } = useQuery<User>({
-    queryKey: ["users", userId],
-    queryFn: () => fetchUser(userId),
+    queryKey: ["users", Number(user?.id)],
+    queryFn: () => fetchUser(Number(user?.id)),
+    enabled: !!user?.id
   });
 
-  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
+  if (isLoading) return <Spinner />
   if (isError || !userData)
     return (
       <p className="text-center mt-10 text-red-500">Failed to load user data</p>
@@ -47,7 +50,7 @@ const ProfilePage = () => {
         <div className="flex flex-col items-center">
           {profile?.signature ? (
             <Image
-              src={profile.signature}
+              src={photoofMan}
               alt="Student Signature"
               width={200}
               height={100}
