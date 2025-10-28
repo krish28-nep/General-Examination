@@ -2,11 +2,12 @@
 import { Button } from "@/components/general/Button";
 import { Spinner } from "@/components/Spinner";
 import { fetchSemester } from "@/lib/api/semester";
-import { Semester } from "@/types/semester";
+import { ExamType } from "@/types/application";
+import { CourseType, Semester } from "@/types/semester";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const SelectCoursesPage = () => {
   const router = useRouter();
@@ -24,11 +25,21 @@ const SelectCoursesPage = () => {
 
   const [selectedCourseIds, setSelectedCourseIds] = useState<number[]>([]);
 
-  const toggleCourseSelection = (courseId: number) => {
+  useEffect(() => {
+    if (semesterData && examType === ExamType.Regular) {
+      const compulsoryCourseIds = semesterData.courses
+        .filter((course) => course.type === CourseType.Compulsory)
+        .map((course) => course.id);
+      setSelectedCourseIds(compulsoryCourseIds);
+    }
+  }, [semesterData, examType]);
+
+  const toggleCourseSelection = (courseId: number, isCompulsory: boolean) => {
+    if (examType === ExamType.Regular && isCompulsory) return; // cannot uncheck compulsory
     setSelectedCourseIds((prev) =>
       prev.includes(courseId)
         ? prev.filter((id) => id !== courseId)
-        : [...prev, courseId],
+        : [...prev, courseId]
     );
   };
 
@@ -77,33 +88,27 @@ const SelectCoursesPage = () => {
               </tr>
             </thead>
             <tbody>
-              {semesterData &&
-                semesterData.courses &&
-                semesterData.courses.map((course, index) => (
-                  <tr key={`course - ${index}`}>
-                    <td className="border-neutral border-b px-2 py-1">
-                      {index + 1}
-                    </td>
-                    <td className="border-neutral border-b px-2 py-1">
-                      {course.name}
-                    </td>
-                    <td className="border-neutral border-b px-2 py-1">
-                      {course.code}
-                    </td>
-                    <td className="border-neutral border-b px-2 py-1">
-                      {course.type}
-                    </td>
-                    <td className="border-neutral border-b px-2 py-1">
-                      {course.credit}
-                    </td>
+              {semesterData?.courses.map((course, index) => {
+                const isCompulsory = course.type === "Compulsory";
+                const isChecked = selectedCourseIds.includes(course.id);
+
+                return (
+                  <tr key={`course-${index}`}>
+                    <td className="border-neutral border-b px-2 py-1">{index + 1}</td>
+                    <td className="border-neutral border-b px-2 py-1">{course.name}</td>
+                    <td className="border-neutral border-b px-2 py-1">{course.code}</td>
+                    <td className="border-neutral border-b px-2 py-1">{course.type}</td>
+                    <td className="border-neutral border-b px-2 py-1">{course.credit}</td>
                     <td
-                      onClick={() => toggleCourseSelection(course.id)}
-                      className="border-neutral border-b px-2 py-1 cursor-pointer"
+                      onClick={() => toggleCourseSelection(course.id, isCompulsory)}
+                      className={`border-neutral border-b px-2 py-1 cursor-pointer text-center ${examType === ExamType.Regular && isCompulsory ? "text-gray-400 cursor-not-allowed" : ""
+                        }`}
                     >
-                      {selectedCourseIds.includes(course.id) ? "✔️" : ""}
+                      {isChecked ? "✔️" : ""}
                     </td>
                   </tr>
-                ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

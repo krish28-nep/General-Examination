@@ -10,68 +10,35 @@ import {
 } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
 import { applicationColumns } from "@/lib/columns/applicationColumn";
-import { Application, ApplicationStatus, ExamType } from "@/types/application";
-import { SemesterName } from "@/types/semester";
-import { Gender, MaritalStatus, Role, User } from "@/types/user";
+import { Application } from "@/types/application";
+import { User } from "@/types/user";
 import photoUrl from "@/public/professional-product-manager.png";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser } from "@/lib/api/user";
+import { Spinner } from "@/components/Spinner";
+import { fetchApplicationsByUser } from "@/lib/api/application";
 
 const StudentDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { user } = useAuth()
+  const { data: userData, isLoading, isError } = useQuery<User>({
+    queryFn: () => fetchUser(Number(user?.id)),
+    queryKey: ["users", Number(user?.id)],
+    enabled: !!user?.id
+  })
 
-  // Mocked student data (replace with API later)
-  const student: User = {
-    id: 1,
-    firstName: "Sandeep",
-    middleName: "K.",
-    lastName: "Thapa",
-    role: Role.Student,
-    email: "sandeep.thapa@example.com",
-    phoneNumber: "+977 9812345678",
-    photoUrl: "/images/student-avatar.jpg",
-    studentProfile: {
-      id: 1,
-      signature: "/images/signature.png",
-      fatherName: "Ram Bahadur Thapa",
-      motherName: "Sita Thapa",
-      gender: Gender.Male,
-      maritalStatus: MaritalStatus.Unmarried,
-      dateOfBirth: new Date("2002-08-14"),
-      collegeName: "ABC College",
-      collegeAddress: "Kathmandu, Nepal",
-      programId: 1,
-      program: { name: "BSc. CSIT" },
-      semesterId: 2,
-      semester: { name: SemesterName.Second },
-    },
-  };
+  const { data: applicationsData = [], isLoading: applicationsDataLoading } = useQuery<Application[]>({
+    queryFn: () => fetchApplicationsByUser(Number(user?.id)),
+    queryKey: ["applications", "user", Number(user?.id)],
+    enabled: !!user?.id
+  })
 
-  // Dummy application data
-  const studentApplications: Application[] = [
-    {
-      id: 1,
-      user: {
-        firstName: student.firstName,
-        lastName: student.lastName,
-        email: student.email,
-      },
-      semester: { name: SemesterName.First },
-      examType: ExamType.Regular,
-      status: ApplicationStatus.Success,
-      createdAt: new Date("2025-03-15T09:24:00"),
-    },
-    {
-      id: 2,
-      user: {
-        firstName: student.firstName,
-        lastName: student.lastName,
-        email: student.email,
-      },
-      semester: { name: SemesterName.Second },
-      examType: ExamType.Back,
-      status: ApplicationStatus.Pending,
-      createdAt: new Date("2025-09-10T09:24:00"),
-    },
-  ];
+  if (!userData || isLoading || applicationsDataLoading) {
+    return <Spinner />
+  }
+
+  const applications = applicationsData ?? [];
 
   return (
     <div className="space-y-8">
@@ -80,7 +47,7 @@ const StudentDashboard = () => {
         <div className="flex-shrink-0">
           <div className="w-36 h-36 rounded-full overflow-hidden border border-neutral-300 dark:border-neutral-700">
             <Image
-              src={photoUrl}
+              src={userData.photoUrl || photoUrl}
               alt="Student Photo"
               width={144}
               height={144}
@@ -92,25 +59,25 @@ const StudentDashboard = () => {
         <div className="flex flex-col justify-between flex-1 space-y-3">
           <div>
             <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-              {student.firstName} {student.middleName ?? ""} {student.lastName}
+              {userData.firstName} {userData.middleName ?? ""} {userData.lastName}
             </h2>
             <p className="text-neutral-500 dark:text-neutral-400">
-              {student.studentProfile?.program.name} —{" "}
-              {student.studentProfile?.semester.name} Semester
+              {userData.studentProfile?.program.name} —{" "}
+              {userData.studentProfile?.semester.name} Semester
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-2 text-sm text-neutral-600 dark:text-neutral-300">
             <p>
-              <strong>Email:</strong> {student.email}
+              <strong>Email:</strong> {userData.email}
             </p>
             <p>
-              <strong>Phone:</strong> {student.phoneNumber}
+              <strong>Phone:</strong> {userData.phoneNumber}
             </p>
             <p>
-              <strong>College:</strong> {student.studentProfile?.collegeName}
+              <strong>College:</strong> {userData.studentProfile?.collegeName}
             </p>
             <p>
-              <strong>Address:</strong> {student.studentProfile?.collegeAddress}
+              <strong>Address:</strong> {userData.studentProfile?.collegeAddress}
             </p>
           </div>
         </div>
@@ -121,17 +88,17 @@ const StudentDashboard = () => {
         {[
           {
             title: "Current Semester",
-            value: student.studentProfile?.semester.name,
+            value: userData.studentProfile?.semester.name,
             icon: GraduationCap,
           },
           {
             title: "Program",
-            value: student.studentProfile?.program.name,
+            value: userData.studentProfile?.program.name,
             icon: FileText,
           },
           {
             title: "Exam Applications",
-            value: studentApplications.length.toString(),
+            value: userData.applications ? userData.applications.length.toString() : 0,
             icon: ClipboardList,
           },
           {
@@ -182,10 +149,8 @@ const StudentDashboard = () => {
         <DataTable
           columns={applicationColumns}
           data={
-            studentApplications.filter((app) =>
-              app.semester.name
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()),
+            applications?.filter((app) =>
+              app.semester?.name?.toLowerCase().includes(searchTerm.toLowerCase())
             ) ?? []
           }
         />

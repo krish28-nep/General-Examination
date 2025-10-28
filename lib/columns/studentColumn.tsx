@@ -127,7 +127,7 @@ export const studentColumns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "studentProfile.program",
-    header: "Program ID",
+    header: "Program",
     cell: ({ row }) => {
       const profile = row.original.studentProfile;
       return profile?.program.name ?? "—";

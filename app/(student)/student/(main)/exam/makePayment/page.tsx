@@ -17,13 +17,27 @@ import React from "react";
 import khaltiLogo from "@/public/khalti.png";
 import Image from "next/image";
 import { Spinner } from "@/components/Spinner";
+import { useAuth } from "@/hooks/useAuth";
 
 const MakePaymentPage = () => {
+    const { user } = useAuth()
     const toast = useToast();
     const searchParams = useSearchParams();
     const id = Number(searchParams.get("semester"));
-    const userId = 1;
-    const examType = searchParams.get("examType") as ExamType;
+    const {
+        data: userData,
+        isLoading,
+        isError,
+    } = useQuery<User>({
+        queryKey: ["users", Number(user?.id)],
+        queryFn: () => fetchUser(Number(user?.id)),
+        enabled: !!user?.id
+    });
+    const examTypeParam = searchParams.get("examType");
+    const examType = Object.values(ExamType).includes(examTypeParam as ExamType)
+        ? (examTypeParam as ExamType)
+        : null;
+
     const selectedCoursesIds =
         searchParams.get("courses")?.split(",").map(Number) ?? [];
     const {
@@ -33,15 +47,6 @@ const MakePaymentPage = () => {
     } = useQuery<Semester>({
         queryKey: ["semesters", id],
         queryFn: () => fetchSemester(id),
-    });
-
-    const {
-        data: userData,
-        isLoading: userDataLoading,
-        isError: userDataError,
-    } = useQuery<User>({
-        queryKey: ["users", userId],
-        queryFn: () => fetchUser(userId),
     });
 
     const courses =
@@ -59,7 +64,7 @@ const MakePaymentPage = () => {
     });
 
     const handlePayment = () => {
-        if (!semesterData || !userData) {
+        if (!semesterData || !userData || !examType) {
             toast("Required data missing", "error");
             return;
         }
@@ -83,11 +88,11 @@ const MakePaymentPage = () => {
         khaltiMutation.mutate(payload);
     };
 
-    if (semesterDataLoading || userDataLoading) {
+    if (semesterDataLoading || isLoading) {
         return <Spinner />;
     }
 
-    if (semesterDataError || userDataError) {
+    if (semesterDataError || isError) {
         return (
             <div className="p-4 text-red-500">
                 Failed to load data
@@ -173,7 +178,11 @@ const MakePaymentPage = () => {
                 <button
                     onClick={handlePayment}
                     disabled={khaltiMutation.isPending}
-                    className="relative flex items-center gap-2 cursor-pointer"
+                    className={`
+      relative flex items-center gap-2 cursor-pointer
+      transition-transform duration-200
+      ${khaltiMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}
+    `}
                 >
                     {khaltiMutation.isPending && (
                         <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded">
@@ -185,10 +194,11 @@ const MakePaymentPage = () => {
                         width={64}
                         height={64}
                         src={khaltiLogo}
-                        className="h-4/5 object-contain"
+                        className="h-14 object-contain"
                     />
                 </button>
             </div>
+
         </div>
     );
 };

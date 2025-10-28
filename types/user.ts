@@ -1,3 +1,4 @@
+import { Application } from "./application";
 import { SemesterName } from "./semester";
 
 export enum Role {
@@ -25,6 +26,7 @@ export type User = {
   photoUrl?: string;
   role: Role;
   studentProfile?: StudentProfile;
+  applications?: Application[]
 };
 
 export type StudentProfile = {
