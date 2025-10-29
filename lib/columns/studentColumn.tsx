@@ -78,21 +78,25 @@ export const studentColumns: ColumnDef<User>[] = [
     header: "Photo",
     cell: ({ row }) => {
       const photo = row.original.photoUrl;
-      return photo ? (
-        <Image
-          src={photo}
-          alt="Student Photo"
-          width={40}
-          height={40}
-          className="rounded-full object-cover"
-        />
-      ) : (
-        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-          N/A
+
+      return (
+        <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
+          {photo ? (
+            <Image
+              src={photo}
+              alt="Student Photo"
+              width={64}
+              height={64}
+              className="object-cover object-center w-full h-full"
+            />
+          ) : (
+            <span className="text-[10px] text-gray-500">N/A</span>
+          )}
         </div>
       );
     },
-  },
+  }
+  ,
   {
     accessorKey: "firstName",
     header: "Student Name",

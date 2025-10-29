@@ -3,17 +3,74 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { Eye, Trash } from "lucide-react";
 
 import { useToast } from "@/hooks/usetoast";
 import { ConfirmationModal } from "@/components/modals/ConfirmModal";
-import type { Application } from "@/types/application";
+import { Application, ApplicationStatus } from "@/types/application";
 import type { Row } from "@tanstack/react-table";
-import { deleteApplication } from "../api/application";
+import { deleteApplication, updateApplicationStatus } from "../api/application";
+import { ReusableDropdown } from "@/components/general/ResuableDropDown";
+
+type Props = {
+  row: Row<Application>;
+};
+
+export const ApplicationStatusCell = ({ row }: Props) => {
+  const pathname = usePathname();
+  const isStudentView = pathname.startsWith("/student");
+
+  const [status, setStatus] = useState<ApplicationStatus>(row.original.status);
+  const toast = useToast();
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: updateApplicationStatus,
+    onSuccess: () => {
+      toast("Status updated successfully.", "success");
+      queryClient.invalidateQueries({ queryKey: ["applications"], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["applications", Number(row.original.id)] });
+    },
+    onError: () => {
+      toast("Failed to update status.", "error");
+    },
+  });
+
+  const handleChange = (newStatus: ApplicationStatus) => {
+    if (newStatus !== status) {
+      const previousStatus = status;
+      setStatus(newStatus);
+      mutation.mutate(
+        { id: row.original.id, status: newStatus },
+        {
+          onError: () => setStatus(previousStatus),
+        }
+      );
+    }
+  };
+
+  // If in student view, show plain text instead of dropdown
+  if (isStudentView) {
+    return <span className="capitalize">{status}</span>;
+  }
+
+  return (
+    <ReusableDropdown
+      items={Object.values(ApplicationStatus)}
+      placeholder="Select status"
+      value={status ?? null}
+      onSelect={(val) => handleChange(val as ApplicationStatus)}
+    />
+  );
+};
 
 export const ApplicationActionCell = ({ row }: { row: Row<Application> }) => {
+  const pathname = usePathname();
+  const isStudentView = pathname.startsWith("/student");
+
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -48,18 +105,24 @@ export const ApplicationActionCell = ({ row }: { row: Row<Application> }) => {
     <>
       <div className="flex gap-4 ease-in-out">
         <Link
-          href={`/admin/applications/${row.original.id}`}
+          href={
+            isStudentView
+              ? `/student/applications/${row.original.id}`
+              : `/admin/applications/${row.original.id}`
+          }
           className="hover:bg-primary/10 hover:text-primary rounded-full p-2 transition-colors duration-300"
         >
           <Eye className="cursor-pointer" size={16} />
         </Link>
 
-        <div
-          onClick={() => setShowConfirmDeleteModal(true)}
-          className="hover:bg-danger/10 hover:text-danger rounded-full p-2 transition-colors duration-300"
-        >
-          <Trash className="cursor-pointer" size={16} />
-        </div>
+        {!isStudentView && (
+          <div
+            onClick={() => setShowConfirmDeleteModal(true)}
+            className="hover:bg-danger/10 hover:text-danger rounded-full p-2 transition-colors duration-300"
+          >
+            <Trash className="cursor-pointer" size={16} />
+          </div>
+        )}
       </div>
 
       <ConfirmationModal
@@ -106,16 +169,7 @@ export const applicationColumns: ColumnDef<Application>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      const color =
-        status === "Pending"
-          ? "text-warning"
-          : status === "Rejected"
-            ? "text-danger"
-            : "text-success";
-      return <span className={color}>{status}</span>;
-    },
+    cell: ({ row }) => <ApplicationStatusCell row={row} />,
   },
   {
     accessorKey: "createdAt",
