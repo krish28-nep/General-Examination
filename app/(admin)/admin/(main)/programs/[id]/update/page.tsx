@@ -114,7 +114,7 @@ const EditProgramPage = () => {
                 htmlFor="fee"
                 className="label-text flex items-center gap-2"
               >
-                <DollarSign size={18} /> Fee *
+                Rs. Fee *
               </label>
               <input
                 {...register("fee", { valueAsNumber: true })}

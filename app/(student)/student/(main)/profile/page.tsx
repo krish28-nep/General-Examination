@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchUser } from "@/lib/api/user";
 import { User } from "@/types/user";
 import Image from "next/image";
-import photoofMan from "@/public/professional-product-manager.png";
+import photoUrl from "@/public/professional-product-manager.png";
 import { useAuth } from "@/hooks/useAuth";
 import { Spinner } from "@/components/Spinner";
 
@@ -37,7 +37,7 @@ const ProfilePage = () => {
         {/* Photo */}
         <div className="flex flex-col items-center">
           <Image
-            src={photoofMan}
+            src={userData.photoUrl || photoUrl}
             alt="Student Photo"
             width={200}
             height={200}
@@ -50,7 +50,7 @@ const ProfilePage = () => {
         <div className="flex flex-col items-center">
           {profile?.signature ? (
             <Image
-              src={photoofMan}
+              src={userData.studentProfile?.signature || photoUrl}
               alt="Student Signature"
               width={200}
               height={100}

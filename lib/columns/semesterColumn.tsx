@@ -24,7 +24,7 @@ export const semesterColumns: ColumnDef<Semester>[] = [
     header: "Fee (₤)",
     cell: ({ row }) => {
       const fee = row.getValue("fee") as number;
-      return `₤${fee.toLocaleString()}`;
+      return `Rs. ${fee.toLocaleString()}`;
     },
   },
   {

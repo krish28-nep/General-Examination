@@ -19,7 +19,6 @@ export const fetchUsers = async () => {
 
 export const fetchUser = async (id: number) => {
   const { data } = await axios.get(`/user/${id}`);
-  console.log(data)
   return data;
 };
 
@@ -37,5 +36,5 @@ type User = {
 
 export const fetchMe = async (): Promise<User> => {
   const { data } = await axios.get('/auth/me')
-  return data 
+  return data
 }

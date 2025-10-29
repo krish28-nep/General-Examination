@@ -88,7 +88,7 @@ export const programColumns: ColumnDef<Program>[] = [
     header: "Fee",
     cell: ({ row }) => {
       const fee = row.getValue("fee") as number;
-      return `₤${fee.toLocaleString()}`;
+      return `RS. ${fee.toLocaleString()}`;
     },
   },
   {

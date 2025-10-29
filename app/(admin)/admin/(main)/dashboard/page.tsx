@@ -2,9 +2,11 @@
 import Barchart from "@/components/charts/Barchart";
 import Piechart from "@/components/charts/Piechart";
 import { DataTable } from "@/components/DataTable";
+import { fetchApplications } from "@/lib/api/application";
+import { fetchTotalCourses, fetchTotalPrograms, fetchTotalUsers } from "@/lib/api/dashboard";
 import { applicationColumns } from "@/lib/columns/applicationColumn";
-import { Application, ApplicationStatus, ExamType } from "@/types/application";
-import { SemesterName } from "@/types/semester";
+import { Application, } from "@/types/application";
+import { useQuery } from "@tanstack/react-query";
 import {
   BookOpen,
   ClipboardList,
@@ -16,135 +18,55 @@ import React, { useState } from "react";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { data: totalUsers, isLoading: totalUserLoading } = useQuery({
+    queryFn: fetchTotalUsers,
+    queryKey: ["totalUsers"]
+  })
+  const { data: totalCourses, isLoading: totalCoursesLoading } = useQuery({
+    queryFn: fetchTotalCourses,
+    queryKey: ["totalCourses"]
+  })
+  const { data: totalPrograms, isLoading: totalProgramsLoading } = useQuery({
+    queryFn: fetchTotalPrograms,
+    queryKey: ["totalPrograms"]
+  })
+
+  const {
+    data: applicationsData = [],
+    isLoading,
+    isError,
+  } = useQuery<Application[]>({
+    queryKey: ["applications"],
+    queryFn: fetchApplications,
+  });
   const stats = [
     {
-      title: "Total Students",
-      value: "1,284",
+      title: "Total Users",
+      value: totalUserLoading ? "..." : totalUsers ?? 0,
       icon: Users,
       change: "+12.5%",
       changeType: "positive" as const,
     },
     {
       title: "Total Applications",
-      value: "298",
+      value: applicationsData.length, // Replace later with real API
       icon: FileText,
       change: "+8.2%",
       changeType: "positive" as const,
     },
     {
       title: "Active Courses",
-      value: "47",
+      value: totalCoursesLoading ? "..." : totalCourses ?? 0,
       icon: BookOpen,
       change: "+3",
       changeType: "positive" as const,
     },
     {
       title: "Programs",
-      value: "8",
+      value: totalProgramsLoading ? "..." : totalPrograms ?? 0,
       icon: GraduationCap,
       change: "Stable",
       changeType: "neutral" as const,
-    },
-  ];
-
-  const dummyApplications: Application[] = [
-    {
-      id: 1,
-      user: {
-        firstName: "Sandeep",
-        lastName: "Thapa",
-        email: "sandeep.thapa@example.com",
-      },
-      semester: { name: SemesterName.First },
-      examType: ExamType.Regular,
-      status: ApplicationStatus.Pending,
-      createdAt: new Date("2025-03-12T09:24:00"),
-    },
-    {
-      id: 2,
-      user: {
-        firstName: "Anjali",
-        middleName: "K.",
-        lastName: "Rai",
-        email: "anjali.rai@example.com",
-      },
-      semester: { name: SemesterName.Second },
-      examType: ExamType.Back,
-      status: ApplicationStatus.Success,
-      createdAt: new Date("2025-03-14T11:10:00"),
-    },
-    {
-      id: 3,
-      user: {
-        firstName: "Bibek",
-        lastName: "Shrestha",
-        email: "bibek.shrestha@example.com",
-      },
-      semester: { name: SemesterName.Third },
-      examType: ExamType.Regular,
-      status: ApplicationStatus.Rejected,
-      createdAt: new Date("2025-03-20T14:42:00"),
-    },
-    {
-      id: 4,
-      user: {
-        firstName: "Nisha",
-        lastName: "Gurung",
-        email: "nisha.gurung@example.com",
-      },
-      semester: { name: SemesterName.Fourth },
-      examType: ExamType.Regular,
-      status: ApplicationStatus.Success,
-      createdAt: new Date("2025-04-02T10:15:00"),
-    },
-    {
-      id: 5,
-      user: {
-        firstName: "Rabin",
-        lastName: "KC",
-        email: "rabin.kc@example.com",
-      },
-      semester: { name: SemesterName.Fifth },
-      examType: ExamType.Back,
-      status: ApplicationStatus.Pending,
-      createdAt: new Date("2025-04-10T08:55:00"),
-    },
-    {
-      id: 6,
-      user: {
-        firstName: "Sujata",
-        middleName: "M.",
-        lastName: "Bista",
-        email: "sujata.bista@example.com",
-      },
-      semester: { name: SemesterName.Sixth },
-      examType: ExamType.Regular,
-      status: ApplicationStatus.Success,
-      createdAt: new Date("2025-04-15T09:45:00"),
-    },
-    {
-      id: 7,
-      user: {
-        firstName: "Roshan",
-        lastName: "Lama",
-        email: "roshan.lama@example.com",
-      },
-      semester: { name: SemesterName.Seventh },
-      examType: ExamType.Regular,
-      status: ApplicationStatus.Pending,
-      createdAt: new Date("2025-05-01T13:00:00"),
-    },
-    {
-      id: 8,
-      user: {
-        firstName: "Pooja",
-        lastName: "Sharma",
-        email: "pooja.sharma@example.com",
-      },
-      semester: { name: SemesterName.Eighth },
-      examType: ExamType.Back,
-      status: ApplicationStatus.Rejected,
-      createdAt: new Date("2025-05-12T15:20:00"),
     },
   ];
 
@@ -202,7 +124,7 @@ const Dashboard = () => {
         {/* Data Table Section */}
         <DataTable
           columns={applicationColumns}
-          data={dummyApplications ?? []}
+          data={applicationsData ?? []}
         />
       </div>
     </div>

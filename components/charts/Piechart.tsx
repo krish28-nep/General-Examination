@@ -3,27 +3,44 @@
 import React from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import { useQuery } from "@tanstack/react-query";
+import { fetchApplicationByStatus } from "@/lib/api/dashboard";
+import { Spinner } from "../Spinner";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Piechart = () => {
+  const { data: applicationStatus, isLoading } = useQuery<Record<string, number>[]>({
+    queryFn: fetchApplicationByStatus,
+    queryKey: ["applicationStatus"],
+  });
+
+  const labels = applicationStatus?.map(item => Object.keys(item)[0]) ?? [];
+  const counts = applicationStatus?.map(item => Object.values(item)[0]) ?? [];
+
   const applicationStatusData = {
-    labels: ["Pending", "Approved", "Rejected", "Under Review"],
+    labels,
     datasets: [
       {
         label: "Applications",
-        data: [85, 142, 23, 48],
+        data: counts,
         backgroundColor: [
-          "rgba(251, 191, 36, 0.8)", // Yellow
-          "rgba(34, 197, 94, 0.8)", // Green
-          "rgba(239, 68, 68, 0.8)", // Red
-          "rgba(99, 102, 241, 0.8)", // Indigo
+          "rgba(251, 191, 36, 0.5)", // Softer Yellow
+          "rgba(34, 197, 94, 0.5)",  // Softer Green
+          "rgba(239, 68, 68, 0.5)",  // Softer Red
+          "rgba(99, 102, 241, 0.5)", // Softer Indigo
         ],
         borderColor: [
-          "rgba(251, 191, 36, 1)",
-          "rgba(34, 197, 94, 1)",
-          "rgba(239, 68, 68, 1)",
-          "rgba(99, 102, 241, 1)",
+          "rgba(251, 191, 36, 0.8)",
+          "rgba(34, 197, 94, 0.8)",
+          "rgba(239, 68, 68, 0.8)",
+          "rgba(99, 102, 241, 0.8)",
+        ],
+        hoverBackgroundColor: [
+          "rgba(251, 191, 36, 0.7)",
+          "rgba(34, 197, 94, 0.7)",
+          "rgba(239, 68, 68, 0.7)",
+          "rgba(99, 102, 241, 0.7)",
         ],
         borderWidth: 2,
       },
@@ -39,9 +56,7 @@ const Piechart = () => {
         labels: {
           color: "rgba(100, 100, 100, 0.9)",
           padding: 16,
-          font: {
-            size: 13,
-          },
+          font: { size: 13 },
           usePointStyle: true,
           pointStyle: "circle",
         },
@@ -69,7 +84,7 @@ const Piechart = () => {
         </p>
       </div>
       <div className="h-[350px]">
-        <Doughnut data={applicationStatusData} options={doughnutChartOptions} />
+        {isLoading ? <Spinner /> : <Doughnut data={applicationStatusData} options={doughnutChartOptions} />}
       </div>
     </div>
   );
