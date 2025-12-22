@@ -86,7 +86,6 @@ const ClientHeader = () => {
                             </div>
                         )}
                     </div>
-
                 </nav>
 
                 {user ? <div className="relative">
