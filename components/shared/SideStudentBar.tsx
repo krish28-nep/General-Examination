@@ -37,12 +37,12 @@ const sideBarItems: SideBarItem[] = [
     route: "/student/applications",
     icon: <Calendar size={16} />,
   },
-  { name: "Result", route: "/student/results", icon: <Trophy size={16} /> },
-  {
-    name: "Payment",
-    route: "/student/payments",
-    icon: <CreditCard size={16} />,
-  },
+  // { name: "Result", route: "/student/results", icon: <Trophy size={16} /> },
+  // {
+  //   name: "Payment",
+  //   route: "/student/payments",
+  //   icon: <CreditCard size={16} />,
+  // },
 ];
 
 const SideStudentBar = () => {

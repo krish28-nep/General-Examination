@@ -40,8 +40,8 @@ const sideBarItems: SideBarItem[] = [
     route: "/admin/applications",
     icon: <FileText size={16} />,
   },
-  { name: "Result", route: "/admin/results", icon: <Trophy size={16} /> },
-  { name: "Payment", route: "/admin/payments", icon: <CreditCard size={16} /> },
+  // { name: "Result", route: "/admin/results", icon: <Trophy size={16} /> },
+  // { name: "Payment", route: "/admin/payments", icon: <CreditCard size={16} /> },
 ];
 
 const SideAdminBar = () => {
