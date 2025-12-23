@@ -42,13 +42,6 @@ const CourseActionCell = ({ row }: { row: Row<Course> }) => {
   return (
     <>
       <div className="flex gap-4 ease-in-out">
-        <Link
-          href={`/admin/courses/${row.original.id}/update`}
-          className="hover:bg-warning/10 hover:text-warning rounded-full p-2 transition-colors duration-300"
-        >
-          <PenSquare className="cursor-pointer" size={16} />
-        </Link>
-
         <div
           onClick={() => setShowConfirmDeleteModal(true)}
           className="hover:bg-danger/10 hover:text-danger rounded-full p-2 transition-colors duration-300"

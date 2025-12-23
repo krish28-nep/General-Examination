@@ -10,7 +10,7 @@ import { UserUpdateInput, userUpdateSchema } from "@/schema/user.schema";
 import { Program } from "@/types/program";
 import { Gender, MaritalStatus, User } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import {
   GraduationCap,
@@ -28,7 +28,7 @@ import { useForm } from "react-hook-form";
 const UpdateStudentPage = () => {
   const router = useRouter();
   const { id: userId } = useParams();
-
+  const queryClient = useQueryClient()
   const [previewImage, setPreviewImage] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
@@ -39,6 +39,7 @@ const UpdateStudentPage = () => {
     register,
     formState: { errors },
     reset,
+    watch,
     handleSubmit,
     setValue,
   } = useForm<UserUpdateInput>({ resolver: zodResolver(userUpdateSchema) });
@@ -65,7 +66,13 @@ const UpdateStudentPage = () => {
   useEffect(() => {
     if (userData) {
       reset(userData);
-      if (userData.photoUrl) setPreviewImage(userData.photoUrl);
+      if (userData.photoUrl) {
+        setPreviewImage(userData.photoUrl)
+      };
+      if (userData.studentProfile?.dateOfBirth) {
+        setValue("studentProfile.dateOfBirth", new Date(userData.studentProfile.dateOfBirth));
+      }
+
       if (userData.studentProfile?.signature)
         setPreviewSignatureImage(userData.studentProfile.signature);
       if (userData.studentProfile?.programId) {
@@ -83,7 +90,8 @@ const UpdateStudentPage = () => {
       setPreviewImage(objectUrl);
       setValue("photoUrl", imageFile.name);
       return () => URL.revokeObjectURL(objectUrl);
-    } else {
+    }
+    else if (!userData?.photoUrl) {
       setPreviewImage("");
       setValue("photoUrl", "");
     }
@@ -95,7 +103,7 @@ const UpdateStudentPage = () => {
       setPreviewSignatureImage(objectUrl);
       setValue("studentProfile.signature", SignatureFile.name);
       return () => URL.revokeObjectURL(objectUrl);
-    } else {
+    } else if (!userData?.studentProfile?.signature) {
       setPreviewSignatureImage("");
       setValue("studentProfile.signature", "");
     }
@@ -124,6 +132,8 @@ const UpdateStudentPage = () => {
       reset();
       setImageFile(null);
       setSignatureFile(null);
+      queryClient.invalidateQueries({ queryKey: ["users", Number(userId)] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       router.push("/admin/students"); // redirect to student list
     },
     onError: (err: unknown) => {
@@ -184,7 +194,7 @@ const UpdateStudentPage = () => {
         <h1 className="flex gap-2 items-center heading-text">
           <GraduationCap size={36} /> Student Registration
         </h1>
-        <Button type="button" variant="outline" text="Back" />
+        <Button onClick={() => router.push("/admin/students")} type="button" variant="outline" text="Back" />
       </div>
       <div className="p-6 flex flex-col gap-4 border border-neutral-300 rounded-2xl shadow-md bg-neutral-100">
         <h2 className="flex gap-2 items-center large-text">
@@ -379,6 +389,7 @@ const UpdateStudentPage = () => {
               <ReusableDropdown
                 items={Object.values(Gender)}
                 placeholder="Select Gender"
+                value={watch("studentProfile.gender")}
                 onSelect={(item) => setValue("studentProfile.gender", item)}
               />
               {errors.studentProfile && errors.studentProfile.gender && (
@@ -394,6 +405,7 @@ const UpdateStudentPage = () => {
               <ReusableDropdown
                 items={Object.values(MaritalStatus)}
                 placeholder="Select Status"
+                value={watch("studentProfile.maritalStatus")}
                 onSelect={(item) =>
                   setValue("studentProfile.maritalStatus", item)
                 }
@@ -409,9 +421,19 @@ const UpdateStudentPage = () => {
                 Date of Birth *
               </label>
               <input
-                {...register("studentProfile.dateOfBirth")}
                 type="date"
                 className="input-field"
+                value={
+                  watch("studentProfile.dateOfBirth")
+                    ? new Date(watch("studentProfile.dateOfBirth")!).toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={(e) =>
+                  setValue(
+                    "studentProfile.dateOfBirth",
+                    e.target.value ? new Date(e.target.value) : undefined
+                  )
+                }
               />
               {errors.studentProfile && errors.studentProfile.dateOfBirth && (
                 <p className="error-text">
@@ -460,10 +482,9 @@ const UpdateStudentPage = () => {
               <ReusableDropdown
                 items={programsData.map((program) => program.name)}
                 placeholder="Select Program"
+                value={selectedProgram?.name || ""}
                 onSelect={(selectedName) => {
-                  const selected = programsData.find(
-                    (p) => p.name === selectedName,
-                  );
+                  const selected = programsData.find((p) => p.name === selectedName);
                   if (selected) {
                     setValue("studentProfile.programId", selected.id);
                     setSelectedProgram(selected);
@@ -482,14 +503,17 @@ const UpdateStudentPage = () => {
               </label>
               <ReusableDropdown
                 disabled={!selectedProgram}
+                value={
+                  selectedProgram?.semesters?.find(
+                    (s) => s.id === watch("studentProfile.semesterId")
+                  )?.name || ""
+                }
                 items={selectedProgram?.semesters?.map((s) => s.name) || []}
                 placeholder="Select Semester"
                 onSelect={(item) => {
-                  const selectedSemester = selectedProgram?.semesters?.find(
-                    (s) => s.name === item,
-                  );
-                  if (selectedSemester) {
-                    setValue("studentProfile.semesterId", selectedSemester.id);
+                  const semester = selectedProgram?.semesters?.find((s) => s.name === item);
+                  if (semester) {
+                    setValue("studentProfile.semesterId", semester.id);
                   }
                 }}
               />
