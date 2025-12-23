@@ -6,7 +6,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { Eye, Trash } from "lucide-react";
+import { Eye, PenSquare, Trash } from "lucide-react";
 
 import { useToast } from "@/hooks/usetoast";
 import { ConfirmationModal } from "@/components/modals/ConfirmModal";
@@ -50,6 +50,12 @@ export const StudentActionCell = ({ row }: { row: Row<User> }) => {
           className="hover:bg-primary/10 hover:text-primary rounded-full p-2 transition-colors duration-300"
         >
           <Eye className="cursor-pointer" size={16} />
+        </Link>
+        <Link
+          href={`/admin/students/${row.original.id}/update`}
+          className="hover:bg-warning/10 hover:text-warning rounded-full p-2 transition-colors duration-300"
+        >
+          <PenSquare className="cursor-pointer" size={16} />
         </Link>
 
         <div
