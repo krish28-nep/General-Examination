@@ -45,6 +45,7 @@ const ClientHeader = () => {
                         width={320}
                         className="h-full w-auto object-contain"
                     />
+                    <span>Online Examination Registration System</span>
                 </div>
 
                 <nav className="flex items-center gap-4 text-base font-semibold">

@@ -48,7 +48,7 @@ const SideAdminBar = () => {
   const pathname = usePathname();
 
   return (
-    <div className="bg-neutral-light shadow-neutral sticky top-0 z-10 h-screen w-64 space-y-4 p-4 shadow-md">
+    <div className="bg-neutral-light shadow-neutral sticky top-0 z-10 h-screen w-64 space-y-8 p-4 shadow-md">
       <div className="h-18 overflow-clip">
         <Image
           src={logo}
@@ -57,6 +57,7 @@ const SideAdminBar = () => {
           alt="THE OMEX LOGO"
           className="h-full w-auto object-contain"
         />
+       
       </div>
       <ul className="space-y-2">
         {sideBarItems.map((item, index) => {
