@@ -3,7 +3,8 @@
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/general/Button";
 import { Spinner } from "@/components/Spinner";
-import { fetchApplications } from "@/lib/api/application";
+import { useAuth } from "@/hooks/useAuth";
+import { fetchApplications, fetchApplicationsByUser } from "@/lib/api/application";
 import { applicationColumns } from "@/lib/columns/applicationColumn";
 import { Application } from "@/types/application";
 import { useQuery } from "@tanstack/react-query";
@@ -14,15 +15,13 @@ import React, { useState } from "react";
 const ApplicationPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const { user } = useAuth()
 
-  const {
-    data: applicationsData,
-    isLoading: applicationsLoading,
-    isError: applicationsError,
-  } = useQuery<Application[]>({
-    queryKey: ["applications"],
-    queryFn: fetchApplications,
-  });
+  const { data: applicationsData = [], isLoading: applicationsDataLoading, isError: applicationsDataError } = useQuery<Application[]>({
+    queryFn: () => fetchApplicationsByUser(Number(user?.id)),
+    queryKey: ["applications", "user", Number(user?.id)],
+    enabled: !!user?.id
+  })
 
   return (
     <div className="space-y-8">
@@ -45,9 +44,9 @@ const ApplicationPage = () => {
         />
       </div>
 
-      {applicationsLoading ? (
+      {applicationsDataLoading ? (
         <Spinner />
-      ) : applicationsError ? (
+      ) : applicationsDataError ? (
         <p className="error-text">Failed to load applications</p>
       ) : (
         <DataTable columns={applicationColumns} data={applicationsData ?? []} />
