@@ -28,7 +28,7 @@ const Footer = () => {
               className="h-full w-auto object-contain"
             />
           </div>
-          <p className="text-sm">OMEX — Online Management of Examination.</p>
+          <p className="text-sm">OERS — Online Examination Registration System.</p>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -71,7 +71,7 @@ const Footer = () => {
       <hr />
 
       <div className="content-wrapper text-neutral-lightest/60 flex flex-wrap items-center justify-center gap-4 py-4 md:justify-between">
-        <span className="text-sm">© {new Date().getFullYear()} OMEX. All rights reserved.</span>
+        <span className="text-sm">© {new Date().getFullYear()} OERS. All rights reserved.</span>
         <div className="flex gap-4 text-sm">
           <Link href="/privacy-policy">Privacy Policy</Link>
           <Link href="/terms-and-conditions">Terms and Conditions</Link>
